@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+ 
+ <!-- namespace:命名空间
+ 	不同的namespace映射文件使用namespace来区分
+ 	不同的namespace映射文件使用的namespace的命名不允许重复
+  -->
+<mapper namespace="cn.dao.DormDao">
+	<resultMap type="Dorm" id="dorm">
+		<id property="id" column="id"/>
+		<result property="dorm_name" column="dorm_name"/>
+		<collection property="studentList" ofType="Student">
+			<id property="id" column="s_id"/>
+			<result property="student_name" column="student_name"/>
+			<result property="student_dormid" column="student_dormid"/>
+		</collection>
+	</resultMap>
+	
+	<!-- 查询宿舍人员 -->
+	<select id="findDorm" resultMap="dorm">
+		SELECT d.id,d.dorm_name,st.id as s_id,st.student_name,st.student_dormid
+		FROM `dorm` AS d
+		LEFT JOIN `student` AS st ON d.id=st.student_dormid
+	</select>
+	
+</mapper>

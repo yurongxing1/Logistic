@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+ 
+ <!-- namespace:命名空间
+ 	不同的namespace映射文件使用namespace来区分
+ 	不同的namespace映射文件使用的namespace的命名不允许重复
+  -->
+<mapper namespace="cn.dao.UserDao">
+	<resultMap type="User" id="userList">
+		<id property="id" column="id"/>
+		<result property="user_name" column="user_name"/>
+		<result property="user_pwd" column="user_pwd"/>
+		<result property="user_sex" column="user_sex"/>
+		<result property="user_age" column="user_age"/>
+		<result property="user_authorityid" column="user_authorityid"/>
+		<result property="user_phone" column="user_phone"/>
+		<result property="user_number" column="user_number"/>
+		<result property="user_address" column="user_address"/>
+		<association property="sex" javaType="Sex">
+			<id property="id" column="s_id"/>
+			<result property="sex_name" column="sex_name"/>
+		</association>
+		<association property="authorityList" javaType="Authority">
+			<id property="id" column="a_id"/>
+			<result property="authority_name" column="authority_name"/>
+		</association>
+	</resultMap>
+
+	<!-- 登录查询 -->
+	<select id="findDl" resultMap="userList">
+		SELECT `user_name`,`user_pwd`,`user_sex`,`user_age`,`user_authorityid`,`user_phone`,`user_number`,`user_address` FROM `user` WHERE user_name= #{user_name} AND user_pwd = #{user_pwd}
+	</select>
+	
+	<!-- 注册用户 -->
+	<insert id="addUser" parameterType="User">
+		INSERT INTO `user`(`user_name`,`user_pwd`,`user_sex`,`user_age`,`user_authorityid`,`user_phone`,`user_number`,`user_address`) VALUES (#{user_name},#{user_pwd},#{user_sex},#{user_age},#{user_authorityid},#{user_phone},#{user_number},#{user_address})
+	</insert>
+	
+	<!-- 查询所有信息 -->
+	<select id="findAll" resultMap="userList">
+		<!-- SELECT u.`user_name`,u.`user_pwd`,s.sex_name,u.`user_age`,a.`authority_name`,u.`user_phone`,u.`user_number`,u.`user_address` FROM `user`AS u,`sex` AS s,`authority` AS a WHERE u.user_sex = s.id AND u.user_authorityid = a.id -->
+		SELECT u.id, u.`user_name`,u.`user_pwd`,s.id as s_id,s.sex_name,u.`user_age`,a.id as a_id,a.`authority_name`,u.`user_phone`,u.`user_number`,u.`user_address`
+		FROM `user` AS u
+		LEFT JOIN `sex` AS s ON u.user_sex = s.id
+		LEFT JOIN `authority` AS a ON u.user_authorityid = a.id
+	</select>
+	
+	<!-- 根据姓名和性别模糊查询 -->
+	<select id="findMohu" resultMap="userList">
+		SELECT u.id, u.`user_name`,u.`user_pwd`,s.id as s_id,s.sex_name,u.`user_age`,a.id as a_id,a.`authority_name`,u.`user_phone`,u.`user_number`,u.`user_address`
+		FROM `user` AS u
+		LEFT JOIN `sex` AS s ON u.user_sex = s.id
+		LEFT JOIN `authority` AS a ON u.user_authorityid = a.id
+		where 1=1
+		<if test="user_name!=null and user_sex==0">
+			AND u.`user_name` LIKE CONCAT ('%',#{user_name},'%')
+		</if>
+		<if test="user_name==null and user_sex!=0">
+			and u.`user_sex` = #{user_sex}
+		</if>
+		<if test="user_name != null and user_sex!=0">
+			AND u.`user_name` LIKE CONCAT ('%',#{user_name},'%') and u.`user_sex` = #{user_sex}
+		</if>
+	</select>
+	
+	<!-- 根据id删除用户 -->
+	<delete id="deluserid">
+		DELETE FROM `user` WHERE `id`=#{id}
+	</delete>
+	
+	<!-- 数据回显 -->
+	<select id="findHui" resultMap="userList">
+		SELECT * FROM `user` WHERE id = #{id}
+	</select>
+	
+	<!-- 修改用户信息 -->
+	<update id="updateUser" parameterType="User">
+		UPDATE `user` SET `user_name`=#{user_name},`user_pwd`=#{user_pwd},`user_sex`=#{user_sex},`user_age`=#{user_age},`user_authorityid`=#{user_authorityid},`user_phone`=#{user_phone},`user_number`=#{user_number},`user_address`=#{user_address} WHERE id=#{id}
+	</update>
+</mapper>

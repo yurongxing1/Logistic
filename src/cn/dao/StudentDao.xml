@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+ 
+ <!-- namespace:命名空间
+ 	不同的namespace映射文件使用namespace来区分
+ 	不同的namespace映射文件使用的namespace的命名不允许重复
+  -->
+<mapper namespace="cn.dao.StudentDao">
+	<resultMap type="Student" id="student">
+		<id property="id" column="id"/>
+		<result property="student_name" column="student_name"/>
+		<result property="student_dormid" column="student_dormid"/>
+		<result property="student_age" column="student_age"/>
+		<result property="student_sex" column="student_sex"/>
+		<association property="dorm" javaType="Dorm">
+			<id property="id" column="d_id"/>
+			<result property="dorm_name" column="dorm_name"/>
+		</association>
+		<association property="sex" javaType="Sex">
+			<id property="id" column="s_id"/>
+			<result property="sex_name" column="sex_name"/>
+		</association>
+	</resultMap>
+	
+	<!-- 查询学生信息 -->
+	<select id="findStu" resultMap="student">
+		SELECT st.id,st.student_name,d.id as d_id,d.dorm_name,st.student_age,s.id as s_id,s.sex_name
+		FROM `student` AS st
+		LEFT JOIN `dorm` AS d ON st.student_dormid = d.id
+		LEFT JOIN `sex` AS s ON st.student_sex = s.id
+	</select>
+	
+	<!-- 模糊查询 -->
+	<select id="findStuMohu" resultMap="student">
+		SELECT st.id,st.student_name,d.id as d_id,d.dorm_name,st.student_age,s.id as s_id,s.sex_name
+		FROM `student` AS st
+		LEFT JOIN `dorm` AS d ON st.student_dormid = d.id
+		LEFT JOIN `sex` AS s ON st.student_sex = s.id
+		where 1=1
+		<if test="student_name!=null">
+			and st.student_name like CONCAT ('%',#{student_name},'%')
+		</if>
+	</select>
+	
+	<!-- 查询宿舍信息 -->
+	<select id="findDorm" resultMap="student">
+		SELECT id,id as d_id,dorm_name FROM `dorm`
+	</select>
+	
+	<!-- 添加学生信息 -->
+	<insert id="addStudent" parameterType="student">
+		INSERT INTO `student`(`student_name`,`student_dormid`,`student_age`,`student_sex`) VALUES (#{student_name},#{student_dormid},#{student_age},#{student_sex});
+	</insert>
+	
+	<!-- 删除信息 -->
+	<delete id="deleStudent">
+		DELETE FROM `student` WHERE `id`=#{id}
+	</delete>
+</mapper>

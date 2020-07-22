@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+ 
+ <!-- namespace:命名空间
+ 	不同的namespace映射文件使用namespace来区分
+ 	不同的namespace映射文件使用的namespace的命名不允许重复
+  -->
+<mapper namespace="cn.dao.MaterialDao">
+	<resultMap type="Material" id="material">
+		<id property="id" column="id"/>
+		<result property="material_name" column="material_name"/>
+		<result property="material_money" column="material_money"/>
+		<result property="material_userid" column="material_userid"/>
+		<result property="material_quantity" column="material_quantity"/>
+		<association property="user" javaType="User">
+			<id property="id" column="u_id"/>
+			<result property="user_name" column="user_name"/>
+		</association>
+	</resultMap>
+	
+	<!-- 查询仓库支出信息 -->
+	<select id="findMater" resultMap="material">
+		SELECT m.id,m.material_name,m.material_money,m.material_userid,u.id as u_id,u.user_name,m.material_quantity
+		FROM `material` AS m
+		LEFT JOIN `user` AS u ON m.material_userid=u.id
+	</select>
+	
+	<!-- 模糊查询 -->
+	<select id="findMohu" resultMap="material" parameterType="String">
+		SELECT m.id,m.material_name,m.material_money,m.material_userid,u.id as u_id,u.user_name,m.material_quantity
+		FROM `material` AS m
+		LEFT JOIN `user` AS u ON m.material_userid=u.id
+		where 1=1
+		<if test="user_name!=null">
+			and u.user_name like CONCAT ('%',#{user_name},'%')
+		</if>
+	</select>
+	
+	<!-- 根据id删除信息 -->
+	<delete id="delematerid">
+		DELETE FROM `material` WHERE `id`= #{id}
+	</delete>
+	
+	<!-- 查询用户id和用户名 -->
+	<select id="findusername" resultMap="material">
+		SELECT id,id as u_id,user_name FROM `user`
+	</select>
+	
+	<!-- 添加仓库信息 -->
+	<insert id="addMater" parameterType="material">
+		INSERT INTO `material`(`material_name`,`material_money`,`material_userid`,`material_quantity`) VALUES (#{material_name},#{material_money},#{material_userid},#{material_quantity})
+	</insert>
+</mapper>

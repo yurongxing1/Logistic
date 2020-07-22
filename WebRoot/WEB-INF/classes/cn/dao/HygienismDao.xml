@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+ 
+ <!-- namespace:命名空间
+ 	不同的namespace映射文件使用namespace来区分
+ 	不同的namespace映射文件使用的namespace的命名不允许重复
+  -->
+<mapper namespace="cn.dao.HygienismDao">
+	<resultMap type="Hygienism" id="hygienism">
+		<id property="id" column="id"/>
+		<result property="hygienism_dormid" column="hygienism_dormid"/>
+		<result property="hygienism_date" column="hygienism_date"/>
+		<result property="hygienism_conditionid" column="hygienism_conditionid"/>
+		<association property="dorm" javaType="Dorm">
+			<id property="id" column="d_id"/>
+			<result property="dorm_name" column="dorm_name"/>
+		</association>
+		<association property="condition" javaType="Condition">
+			<id property="id" column="c_id"/>
+			<result property="condition_name" column="condition_name"/>
+		</association>
+	</resultMap>
+	
+	<select id="findAllhyg" resultMap="hygienism">
+		SELECT h.id,h.hygienism_dormid,h.hygienism_conditionid,d.id as d_id,d.dorm_name,h.hygienism_date,c.id as c_id,c.condition_name
+		FROM `hygienism` AS h
+		LEFT JOIN `dorm` AS d ON h.hygienism_dormid = d.id
+		LEFT JOIN `condition` AS c ON h.hygienism_conditionid = c.id
+	</select>
+</mapper>
